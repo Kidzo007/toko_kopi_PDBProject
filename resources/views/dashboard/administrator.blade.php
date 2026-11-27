@@ -50,6 +50,30 @@
             color: #5d4037;
             font-weight: bold;
         }
+
+        .menu-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .menu-buttons .btn {
+            min-height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background-color: #5d4037;
+            border-color: #5d4037;
+        }
+
+        .btn-primary:hover {
+            background-color: #3e2723;
+            border-color: #3e2723;
+        }
     </style>
 </head>
 
@@ -58,6 +82,7 @@
     {{-- NAVBAR --}}
 
     <nav class="navbar navbar-dark">
+
         <div class="container-fluid px-4">
 
             <span class="navbar-brand fw-bold">
@@ -81,6 +106,7 @@
             </div>
 
         </div>
+
     </nav>
 
 
@@ -89,14 +115,17 @@
         {{-- JUDUL DASHBOARD --}}
 
         <div class="mb-4">
+
             <h2 class="dashboard-title">
                 Dashboard Administrator
             </h2>
 
             <p class="text-muted">
                 Selamat datang, {{ session('username') }}!
-                Anda memiliki akses penuh untuk mengelola sistem Toko Kopi.
+                Anda memiliki akses untuk mengelola data master
+                dan aktivitas transaksi sistem Toko Kopi.
             </p>
+
         </div>
 
 
@@ -111,7 +140,9 @@
             {{-- BARANG --}}
 
             <div class="col-md-4">
+
                 <div class="card menu-card">
+
                     <div class="card-body p-4">
 
                         <div class="menu-icon">📦</div>
@@ -124,19 +155,25 @@
                         </p>
 
                         <a href="{{ route('barang.index') }}"
-                            class="btn btn-primary">
+                           class="btn btn-primary">
+
                             Kelola Data Barang
+
                         </a>
 
                     </div>
+
                 </div>
+
             </div>
 
 
             {{-- MARGIN PENJUALAN --}}
 
             <div class="col-md-4">
+
                 <div class="card menu-card">
+
                     <div class="card-body p-4">
 
                         <div class="menu-icon">💰</div>
@@ -149,19 +186,25 @@
                         </p>
 
                         <a href="{{ route('margin.index') }}"
-                            class="btn btn-primary">
+                           class="btn btn-primary">
+
                             Kelola Margin
+
                         </a>
 
                     </div>
+
                 </div>
+
             </div>
 
 
             {{-- ROLE --}}
 
             <div class="col-md-4">
+
                 <div class="card menu-card">
+
                     <div class="card-body p-4">
 
                         <div class="menu-icon">🔐</div>
@@ -174,19 +217,25 @@
                         </p>
 
                         <a href="{{ route('role.index') }}"
-                            class="btn btn-primary">
+                           class="btn btn-primary">
+
                             Kelola Role
+
                         </a>
 
                     </div>
+
                 </div>
+
             </div>
 
 
             {{-- SATUAN --}}
 
             <div class="col-md-4">
+
                 <div class="card menu-card">
+
                     <div class="card-body p-4">
 
                         <div class="menu-icon">📏</div>
@@ -199,19 +248,25 @@
                         </p>
 
                         <a href="{{ route('satuan.index') }}"
-                            class="btn btn-primary">
+                           class="btn btn-primary">
+
                             Kelola Satuan
+
                         </a>
 
                     </div>
+
                 </div>
+
             </div>
 
 
             {{-- VENDOR --}}
 
             <div class="col-md-4">
+
                 <div class="card menu-card">
+
                     <div class="card-body p-4">
 
                         <div class="menu-icon">🏢</div>
@@ -224,19 +279,25 @@
                         </p>
 
                         <a href="{{ route('vendor.index') }}"
-                            class="btn btn-primary">
+                           class="btn btn-primary">
+
                             Kelola Vendor
+
                         </a>
 
                     </div>
+
                 </div>
+
             </div>
 
 
             {{-- USER --}}
 
             <div class="col-md-4">
+
                 <div class="card menu-card">
+
                     <div class="card-body p-4">
 
                         <div class="menu-icon">👤</div>
@@ -249,27 +310,214 @@
                         </p>
 
                         <a href="{{ route('user.index') }}"
-                            class="btn btn-primary">
+                           class="btn btn-primary">
+
                             Kelola User
+
                         </a>
 
                     </div>
+
                 </div>
+
             </div>
 
         </div>
 
 
-        {{-- INFORMASI --}}
+        {{-- MENU TRANSAKSI --}}
+
+        <h5 class="section-title mb-3">
+            Aktivitas Transaksi
+        </h5>
+
+        <div class="row g-3 mb-4">
+
+
+            {{-- PENGADAAN --}}
+
+            <div class="col-md-4">
+
+                <div class="card menu-card">
+
+                    <div class="card-body p-4">
+
+                        <div class="menu-icon">📋</div>
+
+                        <h5 class="card-title">
+                            Pengadaan Barang
+                        </h5>
+
+                        <p class="text-muted">
+                            Mengelola transaksi pembelian barang
+                            dari vendor atau pemasok.
+                        </p>
+
+                        <div class="menu-buttons">
+
+                            <a href="{{ route('pengadaan.index') }}"
+                               class="btn btn-primary">
+
+                                Data Pengadaan
+
+                            </a>
+
+                            <a href="{{ route('pengadaan.create') }}"
+                               class="btn btn-success">
+
+                                Tambah Pengadaan
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {{-- PENERIMAAN --}}
+
+            <div class="col-md-4">
+
+                <div class="card menu-card">
+
+                    <div class="card-body p-4">
+
+                        <div class="menu-icon">📥</div>
+
+                        <h5 class="card-title">
+                            Penerimaan Barang
+                        </h5>
+
+                        <p class="text-muted">
+                            Mengelola penerimaan barang berdasarkan
+                            transaksi pengadaan dari vendor.
+                        </p>
+
+                        <div class="menu-buttons">
+
+                            <a href="{{ route('penerimaan.index') }}"
+                               class="btn btn-primary">
+
+                                Data Penerimaan
+
+                            </a>
+
+                            <a href="{{ route('penerimaan.create') }}"
+                               class="btn btn-success">
+
+                                Tambah Penerimaan
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {{-- PENJUALAN --}}
+
+            <div class="col-md-4">
+
+                <div class="card menu-card">
+
+                    <div class="card-body p-4">
+
+                        <div class="menu-icon">☕</div>
+
+                        <h5 class="card-title">
+                            Transaksi Penjualan
+                        </h5>
+
+                        <p class="text-muted">
+                            Melakukan transaksi penjualan barang
+                            kepada pelanggan dan memproses pembayaran.
+                        </p>
+
+                        <div class="menu-buttons">
+
+                            <a href="{{ route('penjualan.index') }}"
+                               class="btn btn-primary">
+
+                                Buka Penjualan
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {{-- KARTU STOK --}}
+
+            <div class="col-md-4">
+
+                <div class="card menu-card">
+
+                    <div class="card-body p-4">
+
+                        <div class="menu-icon">📊</div>
+
+                        <h5 class="card-title">
+                            Kartu Stok
+                        </h5>
+
+                        <p class="text-muted">
+                            Memantau riwayat barang masuk,
+                            barang keluar, dan persediaan barang.
+                        </p>
+
+                        <div class="menu-buttons">
+
+                            <a href="{{ route('kartu_stok.index') }}"
+                               class="btn btn-primary">
+
+                                Riwayat Kartu Stok
+
+                            </a>
+
+                            <a href="{{ route('kartu_stok.stok') }}"
+                               class="btn btn-success">
+
+                                Lihat Stok Barang
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- INFORMASI ADMINISTRATOR --}}
 
         <div class="alert alert-info shadow-sm">
+
             <strong>Informasi Administrator</strong>
 
             <p class="mb-0 mt-1">
                 Administrator memiliki akses untuk mengelola
-                seluruh data master dan pengaturan sistem
-                sesuai hak akses yang telah ditentukan.
+                seluruh data master, melakukan transaksi pengadaan,
+                penerimaan, penjualan, serta memantau pergerakan stok
+                dalam sistem Toko Kopi.
             </p>
+
         </div>
 
     </div>

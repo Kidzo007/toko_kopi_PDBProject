@@ -57,24 +57,58 @@ class MarginPenjualanController extends Controller
                 ->with('error', 'User tidak ditemukan.');
         }
 
-        $id = DB::selectOne("
-            SELECT COALESCE(MAX(idmargin_penjualan), 0) + 1 AS idbaru
-            FROM margin_penjualan
-        ");
+        try {
 
-        DB::insert("
-            INSERT INTO margin_penjualan
-            (idmargin_penjualan, iduser, created_at, persen, status, updated_at)
-            VALUES (?, ?, NOW(), ?, ?, NOW())
-        ", [
-            $id->idbaru,
-            $request->iduser,
-            $request->persen,
-            $request->status
-        ]);
+            DB::transaction(function () use ($request) {
 
-        return redirect()->route('margin.index')
-            ->with('success', 'Margin penjualan berhasil ditambahkan!');
+                // Jika margin baru diaktifkan,
+                // nonaktifkan semua margin yang sebelumnya aktif.
+                if ($request->status == 1) {
+
+                    DB::update("
+                        UPDATE margin_penjualan
+                        SET status = 0,
+                            updated_at = NOW()
+                        WHERE status = 1
+                    ");
+
+                }
+
+                // Membuat ID baru
+                $id = DB::selectOne("
+                    SELECT COALESCE(MAX(idmargin_penjualan), 0) + 1 AS idbaru
+                    FROM margin_penjualan
+                ");
+
+                // Menambahkan margin baru
+                DB::insert("
+                    INSERT INTO margin_penjualan
+                    (
+                        idmargin_penjualan,
+                        iduser,
+                        created_at,
+                        persen,
+                        status,
+                        updated_at
+                    )
+                    VALUES (?, ?, NOW(), ?, ?, NOW())
+                ", [
+                    $id->idbaru,
+                    $request->iduser,
+                    $request->persen,
+                    $request->status
+                ]);
+
+            });
+
+            return redirect()->route('margin.index')
+                ->with('success', 'Margin penjualan berhasil ditambahkan!');
+
+        } catch (\Exception $e) {
+
+            return back()->withInput()
+                ->with('error', 'Gagal menambahkan margin penjualan: ' . $e->getMessage());
+        }
     }
 
     // FORM EDIT
@@ -90,7 +124,8 @@ class MarginPenjualanController extends Controller
         }
 
         $user = DB::select("
-            SELECT iduser, username FROM user
+            SELECT iduser, username
+            FROM user
         ");
 
         return view('margin.edit', compact('margin', 'user'));
@@ -105,28 +140,77 @@ class MarginPenjualanController extends Controller
             'status' => 'required|in:0,1'
         ]);
 
-        DB::update("
-            UPDATE margin_penjualan
-            SET iduser = ?,
-                persen = ?,
-                status = ?,
-                updated_at = NOW()
+        $cekMargin = DB::selectOne("
+            SELECT idmargin_penjualan
+            FROM margin_penjualan
             WHERE idmargin_penjualan = ?
-        ", [
-            $request->iduser,
-            $request->persen,
-            $request->status,
-            $id
-        ]);
+        ", [$id]);
 
-        return redirect()->route('margin.index')
-            ->with('success', 'Margin penjualan berhasil diperbarui!');
+        if (!$cekMargin) {
+            return redirect()->route('margin.index')
+                ->with('error', 'Data margin tidak ditemukan.');
+        }
+
+        $cekUser = DB::selectOne(
+            "SELECT iduser FROM user WHERE iduser = ?",
+            [$request->iduser]
+        );
+
+        if (!$cekUser) {
+            return back()->withInput()
+                ->with('error', 'User tidak ditemukan.');
+        }
+
+        try {
+
+            DB::transaction(function () use ($request, $id) {
+
+                // Jika margin yang diedit akan diaktifkan,
+                // nonaktifkan semua margin aktif lainnya.
+                if ($request->status == 1) {
+
+                    DB::update("
+                        UPDATE margin_penjualan
+                        SET status = 0,
+                            updated_at = NOW()
+                        WHERE status = 1
+                        AND idmargin_penjualan != ?
+                    ", [$id]);
+
+                }
+
+                // Update data margin yang dipilih
+                DB::update("
+                    UPDATE margin_penjualan
+                    SET iduser = ?,
+                        persen = ?,
+                        status = ?,
+                        updated_at = NOW()
+                    WHERE idmargin_penjualan = ?
+                ", [
+                    $request->iduser,
+                    $request->persen,
+                    $request->status,
+                    $id
+                ]);
+
+            });
+
+            return redirect()->route('margin.index')
+                ->with('success', 'Margin penjualan berhasil diperbarui!');
+
+        } catch (\Exception $e) {
+
+            return back()->withInput()
+                ->with('error', 'Gagal memperbarui margin penjualan: ' . $e->getMessage());
+        }
     }
 
     // HAPUS DATA
     public function destroy($id)
     {
         try {
+
             DB::delete("
                 DELETE FROM margin_penjualan
                 WHERE idmargin_penjualan = ?

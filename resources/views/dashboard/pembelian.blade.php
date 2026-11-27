@@ -111,7 +111,9 @@
 
     <div class="row g-3 mb-4">
 
-        <div class="col-md-6">
+        {{-- DATA PENGADAAN --}}
+
+        <div class="col-md-4">
             <div class="card menu-card h-100">
                 <div class="card-body p-4">
 
@@ -133,7 +135,10 @@
             </div>
         </div>
 
-        <div class="col-md-6">
+
+        {{-- TAMBAH PENGADAAN --}}
+
+        <div class="col-md-4">
             <div class="card menu-card h-100">
                 <div class="card-body p-4">
 
@@ -149,6 +154,31 @@
                     <a href="{{ route('pengadaan.create') }}"
                         class="btn btn-success">
                         Tambah Pengadaan
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+
+        {{-- DETAIL PENGADAAN SP --}}
+
+        <div class="col-md-4">
+            <div class="card menu-card h-100">
+                <div class="card-body p-4">
+
+                    <div class="menu-icon mb-2">📑</div>
+
+                    <h5 class="fw-bold">Detail Pengadaan (SP)</h5>
+
+                    <p class="text-muted">
+                        Melihat detail transaksi pengadaan
+                        menggunakan Stored Procedure.
+                    </p>
+
+                    <a href="{{ route('pengadaan.detailSP') }}"
+                        class="btn btn-info text-white">
+                        Detail Pengadaan SP
                     </a>
 
                 </div>

@@ -2,45 +2,94 @@
 
 @section('content')
 
+@php
+    $role = session('nama_role');
+
+    $dashboard = [
+        'Administrator' => '/dashboard/administrator',
+        'Gudang' => '/dashboard/gudang',
+        'Manager' => '/dashboard/manager',
+        'Kasir' => '/dashboard/kasir',
+        'Staff Pembelian' => '/dashboard/pembelian',
+    ];
+
+    $dashboardUrl = $dashboard[$role] ?? '/';
+@endphp
+
 <div class="container mt-4">
 
-    <div class="mb-4">
-        <h3 style="color:#3e2723;">Kartu Stok Barang</h3>
-        <p class="text-muted">
-            Riwayat barang masuk dan keluar dari sistem persediaan.
-        </p>
+    {{-- JUDUL DAN TOMBOL KEMBALI --}}
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h3 style="color:#3e2723;">
+                Kartu Stok Barang
+            </h3>
+
+            <p class="text-muted mb-0">
+                Riwayat barang masuk dan keluar dari sistem persediaan.
+            </p>
+        </div>
+
+        <a href="{{ url($dashboardUrl) }}"
+           class="btn btn-secondary">
+            ← Kembali ke Dashboard
+        </a>
+
     </div>
 
-    <!-- RINGKASAN -->
+
+    {{-- RINGKASAN --}}
+
     <div class="row mb-4">
 
         <div class="col-md-4 mb-3">
             <div class="card">
                 <div class="card-body">
-                    <h6 class="text-muted">Jenis Barang Tercatat</h6>
-                    <h3>{{ $jumlahBarang->total }}</h3>
+
+                    <h6 class="text-muted">
+                        Jenis Barang Tercatat
+                    </h6>
+
+                    <h3>
+                        {{ $jumlahBarang->total }}
+                    </h3>
+
                 </div>
             </div>
         </div>
 
+
         <div class="col-md-4 mb-3">
             <div class="card">
                 <div class="card-body">
-                    <h6 class="text-muted">Total Barang Masuk</h6>
+
+                    <h6 class="text-muted">
+                        Total Barang Masuk
+                    </h6>
+
                     <h3 class="text-success">
                         {{ number_format($totalMasuk->total) }}
                     </h3>
+
                 </div>
             </div>
         </div>
 
+
         <div class="col-md-4 mb-3">
             <div class="card">
                 <div class="card-body">
-                    <h6 class="text-muted">Total Barang Keluar</h6>
+
+                    <h6 class="text-muted">
+                        Total Barang Keluar
+                    </h6>
+
                     <h3 class="text-danger">
                         {{ number_format($totalKeluar->total) }}
                     </h3>
+
                 </div>
             </div>
         </div>
@@ -48,8 +97,9 @@
     </div>
 
 
-    <!-- TOMBOL -->
-    <div class="d-flex justify-content-between mb-3">
+    {{-- TOMBOL STOK BARANG --}}
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
 
         <h5>Riwayat Pergerakan Stok</h5>
 
@@ -61,7 +111,8 @@
     </div>
 
 
-    <!-- PENCARIAN -->
+    {{-- PENCARIAN --}}
+
     <div class="card mb-4">
 
         <div class="card-body">
@@ -95,7 +146,8 @@
     </div>
 
 
-    <!-- TABEL KARTU STOK -->
+    {{-- TABEL KARTU STOK --}}
+
     <div class="card">
 
         <div class="card-header">
@@ -127,56 +179,74 @@
 
                         @forelse($kartuStok as $index => $ks)
 
-                        <tr>
+                            <tr>
 
-                            <td>{{ $index + 1 }}</td>
+                                <td>
+                                    {{ $index + 1 }}
+                                </td>
 
-                            <td>{{ $ks->created_at }}</td>
+                                <td>
+                                    {{ $ks->created_at }}
+                                </td>
 
-                            <td>
-                                {{ $ks->nama_barang }}
-                            </td>
+                                <td>
+                                    {{ $ks->nama_barang }}
+                                </td>
 
-                            <td>
-                                @if($ks->jenis_transaksi == 'P')
-                                    <span class="badge bg-success">
-                                        Penerimaan
-                                    </span>
-                                @else
-                                    <span class="badge bg-secondary">
-                                        {{ $ks->jenis_transaksi }}
-                                    </span>
-                                @endif
-                            </td>
+                                <td>
 
-                            <td class="text-success">
-                                {{ number_format($ks->masuk) }}
-                                {{ $ks->nama_satuan }}
-                            </td>
+                                    @if($ks->jenis_transaksi == 'P')
 
-                            <td class="text-danger">
-                                {{ number_format($ks->keluar) }}
-                                {{ $ks->nama_satuan }}
-                            </td>
+                                        <span class="badge bg-success">
+                                            Penerimaan
+                                        </span>
 
-                            <td>
-                                <strong>
-                                    {{ number_format($ks->stock) }}
+                                    @elseif($ks->jenis_transaksi == 'J')
+
+                                        <span class="badge bg-danger">
+                                            Penjualan
+                                        </span>
+
+                                    @else
+
+                                        <span class="badge bg-secondary">
+                                            {{ $ks->jenis_transaksi }}
+                                        </span>
+
+                                    @endif
+
+                                </td>
+
+                                <td class="text-success">
+                                    {{ number_format($ks->masuk) }}
                                     {{ $ks->nama_satuan }}
-                                </strong>
-                            </td>
+                                </td>
 
-                            <td>{{ $ks->idtransaksi }}</td>
+                                <td class="text-danger">
+                                    {{ number_format($ks->keluar) }}
+                                    {{ $ks->nama_satuan }}
+                                </td>
 
-                        </tr>
+                                <td>
+                                    <strong>
+                                        {{ number_format($ks->stock) }}
+                                        {{ $ks->nama_satuan }}
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    {{ $ks->idtransaksi }}
+                                </td>
+
+                            </tr>
 
                         @empty
 
-                        <tr>
-                            <td colspan="8" class="text-center">
-                                Belum ada riwayat kartu stok.
-                            </td>
-                        </tr>
+                            <tr>
+                                <td colspan="8" class="text-center">
+                                    Belum ada riwayat kartu stok.
+                                </td>
+                            </tr>
 
                         @endforelse
 

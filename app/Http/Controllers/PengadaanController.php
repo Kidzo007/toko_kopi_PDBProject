@@ -291,6 +291,17 @@ class PengadaanController extends Controller
                     'error',
                     'Pengadaan gagal disimpan: ' . $e->getMessage()
                 );
+
         }
     }
+    // ==========================================
+    // 4. MENAMPILKAN DETAIL PENGADAAN DARI SP
+    // ==========================================
+    public function detailSP()
+    {
+        $data = DB::select("CALL sp_detail_pengadaan()");
+
+        return view('pengadaan.detail-sp', compact('data'));
+    }
+
 }

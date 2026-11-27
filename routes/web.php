@@ -9,27 +9,30 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SatuanController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\UserController;
+
 use App\Http\Controllers\ManagerDashboardController;
 use App\Http\Controllers\GudangDashboardController;
 use App\Http\Controllers\KasirDashboardController;
 use App\Http\Controllers\PembelianDashboardController;
+
 use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\PengadaanController;
 use App\Http\Controllers\PenerimaanController;
+use App\Http\Controllers\KartuStokController;
 
 
-// ========================================
+// ==================================================
 // HALAMAN UTAMA
-// ========================================
+// ==================================================
 
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
 
-// ========================================
+// ==================================================
 // LOGIN DAN LOGOUT
-// ========================================
+// ==================================================
 
 Route::get('/login', [AuthController::class, 'showLogin'])
     ->name('login');
@@ -41,55 +44,45 @@ Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout');
 
 
-// ========================================
-// DASHBOARD ADMINISTRATOR
-// ========================================
+// ==================================================
+// DASHBOARD
+// ==================================================
 
+// Dashboard Administrator
 Route::get('/dashboard/administrator', function () {
     return view('dashboard.administrator');
-})->middleware('role:Administrator')
-  ->name('dashboard.administrator');
+})
+    ->middleware('role:Administrator')
+    ->name('dashboard.administrator');
 
 
-// ========================================
-// DASHBOARD KASIR
-// ========================================
-
+// Dashboard Kasir
 Route::get('/dashboard/kasir', [KasirDashboardController::class, 'index'])
     ->middleware('role:Kasir')
     ->name('dashboard.kasir');
 
 
-// ========================================
-// DASHBOARD GUDANG
-// ========================================
-
+// Dashboard Gudang
 Route::get('/dashboard/gudang', [GudangDashboardController::class, 'index'])
     ->middleware('role:Gudang')
     ->name('dashboard.gudang');
 
 
-// ========================================
-// DASHBOARD MANAGER
-// ========================================
-
+// Dashboard Manager
 Route::get('/dashboard/manager', [ManagerDashboardController::class, 'index'])
     ->middleware('role:Manager')
     ->name('dashboard.manager');
 
 
-// ========================================
-// DASHBOARD STAFF PEMBELIAN
-// ========================================
-
+// Dashboard Staff Pembelian
 Route::get('/dashboard/pembelian', [PembelianDashboardController::class, 'index'])
     ->middleware('role:Staff Pembelian')
     ->name('dashboard.pembelian');
 
 
-// ========================================
-// CRUD BARANG
-// ========================================
+// ==================================================
+// MASTER BARANG
+// ==================================================
 
 // Semua role boleh melihat barang
 Route::middleware(['role:Administrator,Kasir,Gudang,Manager,Staff Pembelian'])
@@ -98,12 +91,10 @@ Route::middleware(['role:Administrator,Kasir,Gudang,Manager,Staff Pembelian'])
         Route::get('/barang', [BarangController::class, 'index'])
             ->name('barang.index');
 
-        Route::get('/penjualan', [PenjualanController::class, 'index'])
-            ->name('penjualan.index');
-
     });
 
-// Administrator, Gudang, Staff Pembelian boleh mengelola
+
+// Administrator, Gudang, Staff Pembelian boleh mengelola barang
 Route::middleware(['role:Administrator,Gudang,Staff Pembelian'])
     ->group(function () {
 
@@ -125,9 +116,9 @@ Route::middleware(['role:Administrator,Gudang,Staff Pembelian'])
     });
 
 
-// ========================================
-// CRUD MARGIN PENJUALAN
-// ========================================
+// ==================================================
+// MASTER MARGIN PENJUALAN
+// ==================================================
 
 // Administrator dan Manager boleh melihat
 Route::middleware(['role:Administrator,Manager'])
@@ -138,7 +129,8 @@ Route::middleware(['role:Administrator,Manager'])
 
     });
 
-// Hanya Administrator boleh mengelola
+
+// Administrator boleh mengelola margin
 Route::middleware(['role:Administrator'])
     ->group(function () {
 
@@ -160,9 +152,9 @@ Route::middleware(['role:Administrator'])
     });
 
 
-// ========================================
-// CRUD ROLE
-// ========================================
+// ==================================================
+// MASTER ROLE
+// ==================================================
 
 Route::middleware(['role:Administrator'])
     ->group(function () {
@@ -188,9 +180,9 @@ Route::middleware(['role:Administrator'])
     });
 
 
-// ========================================
-// CRUD SATUAN
-// ========================================
+// ==================================================
+// MASTER SATUAN
+// ==================================================
 
 // Administrator, Gudang, Manager boleh melihat
 Route::middleware(['role:Administrator,Gudang,Manager'])
@@ -200,6 +192,7 @@ Route::middleware(['role:Administrator,Gudang,Manager'])
             ->name('satuan.index');
 
     });
+
 
 // Administrator dan Gudang boleh mengelola
 Route::middleware(['role:Administrator,Gudang'])
@@ -223,9 +216,9 @@ Route::middleware(['role:Administrator,Gudang'])
     });
 
 
-// ========================================
-// CRUD VENDOR
-// ========================================
+// ==================================================
+// MASTER VENDOR
+// ==================================================
 
 // Administrator, Gudang, Manager, Staff Pembelian boleh melihat
 Route::middleware(['role:Administrator,Gudang,Manager,Staff Pembelian'])
@@ -235,6 +228,7 @@ Route::middleware(['role:Administrator,Gudang,Manager,Staff Pembelian'])
             ->name('vendor.index');
 
     });
+
 
 // Administrator, Gudang, Staff Pembelian boleh mengelola
 Route::middleware(['role:Administrator,Gudang,Staff Pembelian'])
@@ -258,9 +252,9 @@ Route::middleware(['role:Administrator,Gudang,Staff Pembelian'])
     });
 
 
-// ========================================
-// CRUD USER
-// ========================================
+// ==================================================
+// MASTER USER
+// ==================================================
 
 Route::middleware(['role:Administrator'])
     ->group(function () {
@@ -286,40 +280,84 @@ Route::middleware(['role:Administrator'])
     });
 
 
-// ========================================
-// CRUD PENGADAAN
-// ========================================
+// ==================================================
+// MODUL PENGADAAN
+// Administrator dan Staff Pembelian
+// ==================================================
 
-// Staff Pembelian boleh melihat dan menambahkan pengadaan
-Route::middleware(['role:Staff Pembelian'])
+Route::middleware(['role:Administrator,Staff Pembelian'])
     ->group(function () {
 
-        // Menampilkan daftar pengadaan
         Route::get('/pengadaan', [PengadaanController::class, 'index'])
             ->name('pengadaan.index');
 
-        // Menampilkan form tambah pengadaan
         Route::get('/pengadaan/tambah', [PengadaanController::class, 'create'])
             ->name('pengadaan.create');
 
         Route::post('/pengadaan', [PengadaanController::class, 'store'])
             ->name('pengadaan.store');
 
+        Route::get('/pengadaan/detail-sp', [PengadaanController::class, 'detailSP'])
+            ->name('pengadaan.detailSP');
+
     });
 
+
+// ==================================================
 // MODUL PENERIMAAN
-Route::middleware(['role:Gudang'])->group(function () {
+// Administrator dan Gudang
+// ==================================================
 
-    Route::get('/penerimaan', [PenerimaanController::class, 'index'])
-        ->name('penerimaan.index');
+Route::middleware(['role:Administrator,Gudang'])
+    ->group(function () {
 
-    Route::get('/penerimaan/tambah', [PenerimaanController::class, 'create'])
-        ->name('penerimaan.create');
+        Route::get('/penerimaan', [PenerimaanController::class, 'index'])
+            ->name('penerimaan.index');
 
-    Route::get('/penerimaan/detail-pengadaan/{id}', [PenerimaanController::class, 'detailPengadaan'])
-        ->name('penerimaan.detail');
+        Route::get('/penerimaan/tambah', [PenerimaanController::class, 'create'])
+            ->name('penerimaan.create');
 
-    Route::post('/penerimaan', [PenerimaanController::class, 'store'])
-        ->name('penerimaan.store');
+        Route::get('/penerimaan/detail-pengadaan/{id}', [PenerimaanController::class, 'detailPengadaan'])
+            ->name('penerimaan.detail');
 
-});
+        Route::post('/penerimaan', [PenerimaanController::class, 'store'])
+            ->name('penerimaan.store');
+
+        Route::get('/penerimaan/detail-sp', [PenerimaanController::class, 'detailSP'])
+            ->name('penerimaan.detailSP');
+
+    });
+
+
+// ==================================================
+// MODUL PENJUALAN
+// Administrator dan Kasir
+// ==================================================
+
+Route::middleware(['role:Administrator,Kasir'])
+    ->group(function () {
+
+        Route::get('/penjualan', [PenjualanController::class, 'index'])
+            ->name('penjualan.index');
+
+        Route::post('/penjualan', [PenjualanController::class, 'store'])
+            ->name('penjualan.store');
+
+    });
+
+
+// ==================================================
+// MODUL KARTU STOK
+// Administrator, Gudang, Manager
+// ==================================================
+
+Route::middleware(['role:Administrator,Gudang,Manager'])
+    ->group(function () {
+
+        Route::get('/kartu-stok', [KartuStokController::class, 'index'])
+            ->name('kartu_stok.index');
+
+        Route::get('/kartu-stok/stok', [KartuStokController::class, 'stokBarang'])
+            ->name('kartu_stok.stok');
+
+    });

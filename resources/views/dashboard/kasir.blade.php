@@ -88,6 +88,41 @@
     </div>
 
 
+    {{-- MENU PENJUALAN --}}
+
+    <h5 class="mb-3">Menu Transaksi</h5>
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4">
+
+            <div class="card stat-card h-100">
+
+                <div class="card-body p-4">
+
+                    <div style="font-size: 35px;">☕</div>
+
+                    <h5 class="fw-bold">Transaksi Penjualan</h5>
+
+                    <p class="text-muted">
+                        Melakukan transaksi penjualan barang
+                        kepada pelanggan.
+                    </p>
+
+                    <a href="{{ route('penjualan.index') }}"
+                       class="btn btn-primary">
+                        Buka Penjualan
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
     {{-- STATISTIK PENJUALAN --}}
 
     <h5 class="mb-3">Ringkasan Penjualan</h5>

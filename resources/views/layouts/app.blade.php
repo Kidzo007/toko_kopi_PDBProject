@@ -13,10 +13,12 @@
     <style>
         body {
             background-color: #f5f6fa;
+            font-family: Arial, sans-serif;
         }
 
         .navbar {
             background-color: #3e2723;
+            padding: 12px 0;
         }
 
         .navbar-brand {
@@ -51,8 +53,11 @@
 
 <body>
 
-    <nav class="navbar navbar-expand-lg">
-        <div class="container">
+    {{-- NAVBAR --}}
+
+    <nav class="navbar navbar-expand-lg navbar-dark">
+
+        <div class="container-fluid px-4">
 
             <a class="navbar-brand" href="#">
                 ☕ TOKO KOPI
@@ -63,7 +68,10 @@
             </div>
 
         </div>
+
     </nav>
+
+    {{-- KONTEN HALAMAN --}}
 
     <div class="container py-4">
 
@@ -83,8 +91,7 @@
 
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     @yield('js')
 

@@ -45,6 +45,14 @@
             color: white;
             font-weight: bold;
         }
+
+        /* TOMBOL MONITORING AGAR SEJAJAR */
+        .menu-buttons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
     </style>
 
 </head>
@@ -85,6 +93,7 @@
     {{-- JUDUL --}}
 
     <div class="mb-4">
+
         <h2 class="dashboard-title">
             Dashboard Manager
         </h2>
@@ -93,19 +102,79 @@
             Selamat datang, {{ session('username') }}.
             Berikut ringkasan operasional Toko Kopi.
         </p>
+
+    </div>
+
+
+    {{-- MENU MONITORING STOK --}}
+
+    <h5 class="mb-3">
+        Menu Monitoring
+    </h5>
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4">
+
+            <div class="card stat-card h-100">
+
+                <div class="card-body p-4">
+
+                    <div style="font-size: 35px;">
+                        📊
+                    </div>
+
+                    <h5 class="fw-bold">
+                        Kartu Stok
+                    </h5>
+
+                    <p class="text-muted">
+                        Memantau pergerakan stok barang,
+                        barang masuk, dan barang keluar.
+                    </p>
+
+                    {{-- TOMBOL SEJAJAR --}}
+
+                    <div class="menu-buttons">
+
+                        <a href="{{ route('kartu_stok.index') }}"
+                           class="btn btn-primary">
+                            Buka Kartu Stok
+                        </a>
+
+                        <a href="{{ route('kartu_stok.stok') }}"
+                           class="btn btn-success">
+                            Lihat Stok Barang
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 
 
     {{-- STATISTIK MASTER --}}
 
-    <h5 class="mb-3">Statistik Master</h5>
+    <h5 class="mb-3">
+        Statistik Master
+    </h5>
 
     <div class="row g-3 mb-4">
 
         <div class="col-md-4 col-lg-4">
+
             <div class="card stat-card">
+
                 <div class="card-body">
-                    <h6 class="text-muted">Total Barang</h6>
+
+                    <h6 class="text-muted">
+                        Total Barang
+                    </h6>
 
                     <div class="stat-number text-primary">
                         {{ number_format($totalBarang) }}
@@ -114,15 +183,23 @@
                     <small class="text-muted">
                         Data barang terdaftar
                     </small>
+
                 </div>
+
             </div>
+
         </div>
 
 
         <div class="col-md-4 col-lg-4">
+
             <div class="card stat-card">
+
                 <div class="card-body">
-                    <h6 class="text-muted">Total Vendor</h6>
+
+                    <h6 class="text-muted">
+                        Total Vendor
+                    </h6>
 
                     <div class="stat-number text-success">
                         {{ number_format($totalVendor) }}
@@ -131,15 +208,23 @@
                     <small class="text-muted">
                         Data vendor terdaftar
                     </small>
+
                 </div>
+
             </div>
+
         </div>
 
 
         <div class="col-md-4 col-lg-4">
+
             <div class="card stat-card">
+
                 <div class="card-body">
-                    <h6 class="text-muted">Total User</h6>
+
+                    <h6 class="text-muted">
+                        Total User
+                    </h6>
 
                     <div class="stat-number text-warning">
                         {{ number_format($totalUser) }}
@@ -148,8 +233,11 @@
                     <small class="text-muted">
                         Pengguna sistem
                     </small>
+
                 </div>
+
             </div>
+
         </div>
 
     </div>
@@ -157,12 +245,16 @@
 
     {{-- STATISTIK TRANSAKSI --}}
 
-    <h5 class="mb-3">Statistik Transaksi</h5>
+    <h5 class="mb-3">
+        Statistik Transaksi
+    </h5>
 
     <div class="row g-3 mb-4">
 
         <div class="col-md-6">
+
             <div class="card stat-card">
+
                 <div class="card-body">
 
                     <h6 class="text-muted">
@@ -178,12 +270,16 @@
                     </small>
 
                 </div>
+
             </div>
+
         </div>
 
 
         <div class="col-md-6">
+
             <div class="card stat-card">
+
                 <div class="card-body">
 
                     <h6 class="text-muted">
@@ -199,7 +295,9 @@
                     </small>
 
                 </div>
+
             </div>
+
         </div>
 
     </div>
@@ -210,7 +308,9 @@
     <div class="row g-3 mb-4">
 
         <div class="col-md-6">
+
             <div class="card stat-card">
+
                 <div class="card-body">
 
                     <h6 class="text-muted">
@@ -222,12 +322,16 @@
                     </h3>
 
                 </div>
+
             </div>
+
         </div>
 
 
         <div class="col-md-6">
+
             <div class="card stat-card">
+
                 <div class="card-body">
 
                     <h6 class="text-muted">
@@ -239,7 +343,9 @@
                     </h3>
 
                 </div>
+
             </div>
+
         </div>
 
     </div>
@@ -260,12 +366,14 @@
                 <table class="table table-bordered table-striped">
 
                     <thead class="table-dark">
+
                         <tr>
                             <th>ID Penjualan</th>
                             <th>Tanggal</th>
                             <th>Kasir</th>
                             <th>Total</th>
                         </tr>
+
                     </thead>
 
                     <tbody>
@@ -273,15 +381,23 @@
                         @forelse($penjualanTerbaru as $p)
 
                             <tr>
-                                <td>{{ $p->idpenjualan }}</td>
 
-                                <td>{{ $p->created_at }}</td>
+                                <td>
+                                    {{ $p->idpenjualan }}
+                                </td>
 
-                                <td>{{ $p->username }}</td>
+                                <td>
+                                    {{ $p->created_at }}
+                                </td>
+
+                                <td>
+                                    {{ $p->username }}
+                                </td>
 
                                 <td>
                                     Rp {{ number_format($p->total_nilai, 0, ',', '.') }}
                                 </td>
+
                             </tr>
 
                         @empty
@@ -320,12 +436,14 @@
                 <table class="table table-bordered table-striped">
 
                     <thead class="table-dark">
+
                         <tr>
                             <th>ID Pengadaan</th>
                             <th>Tanggal</th>
                             <th>Vendor</th>
                             <th>Total</th>
                         </tr>
+
                     </thead>
 
                     <tbody>
@@ -333,15 +451,23 @@
                         @forelse($pengadaanTerbaru as $p)
 
                             <tr>
-                                <td>{{ $p->idpengadaan }}</td>
 
-                                <td>{{ $p->timestamp }}</td>
+                                <td>
+                                    {{ $p->idpengadaan }}
+                                </td>
 
-                                <td>{{ $p->nama_vendor }}</td>
+                                <td>
+                                    {{ $p->timestamp }}
+                                </td>
+
+                                <td>
+                                    {{ $p->nama_vendor }}
+                                </td>
 
                                 <td>
                                     Rp {{ number_format($p->total_nilai, 0, ',', '.') }}
                                 </td>
+
                             </tr>
 
                         @empty

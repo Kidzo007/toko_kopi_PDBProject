@@ -1,10 +1,12 @@
 @extends('layouts.app')
 
+@section('title', 'Data Pengadaan - Toko Kopi')
+
 @section('content')
 <div class="container mt-4">
 
     <!-- HEADER -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
             <h3 class="fw-bold mb-1">Data Pengadaan</h3>
             <p class="text-muted mb-0">
@@ -12,14 +14,23 @@
             </p>
         </div>
 
-        <div>
-            <a href="{{ route('dashboard.pembelian') }}"
-                class="btn btn-secondary">
-                Kembali
-            </a>
+        <div class="d-flex gap-2 flex-wrap">
+
+            {{-- TOMBOL KEMBALI SESUAI ROLE --}}
+            @if(session('nama_role') === 'Administrator')
+                <a href="{{ route('dashboard.administrator') }}"
+                   class="btn btn-secondary">
+                    ← Kembali ke Dashboard
+                </a>
+            @else
+                <a href="{{ route('dashboard.pembelian') }}"
+                   class="btn btn-secondary">
+                    ← Kembali ke Dashboard
+                </a>
+            @endif
 
             <a href="{{ route('pengadaan.create') }}"
-                class="btn btn-primary">
+               class="btn btn-primary">
                 + Tambah Pengadaan
             </a>
         </div>
@@ -30,7 +41,7 @@
         <div class="alert alert-success alert-dismissible fade show">
             {{ session('success') }}
             <button type="button" class="btn-close"
-                data-bs-dismiss="alert"></button>
+                    data-bs-dismiss="alert"></button>
         </div>
     @endif
 
@@ -38,7 +49,7 @@
         <div class="alert alert-danger alert-dismissible fade show">
             {{ session('error') }}
             <button type="button" class="btn-close"
-                data-bs-dismiss="alert"></button>
+                    data-bs-dismiss="alert"></button>
         </div>
     @endif
 
@@ -127,7 +138,7 @@
                                     </p>
 
                                     <a href="{{ route('pengadaan.create') }}"
-                                        class="btn btn-primary btn-sm">
+                                       class="btn btn-primary btn-sm">
                                         + Tambah Pengadaan
                                     </a>
                                 </td>

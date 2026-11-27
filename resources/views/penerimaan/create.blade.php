@@ -1,24 +1,71 @@
 @extends('layouts.app')
 
+@section('title', 'Tambah Penerimaan - Toko Kopi')
+
+@section('css')
+<style>
+    body {
+        background-color: #f5f3ef;
+    }
+
+    .judul {
+        color: #4b2e20;
+        font-weight: bold;
+    }
+
+    .btn-dashboard {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+    }
+
+    .btn-dashboard:hover {
+        background-color: #5c636a;
+        color: white;
+    }
+
+    .card-header {
+        background-color: #5d4037;
+        color: white;
+        font-weight: bold;
+    }
+
+    .card {
+        border: none;
+        border-radius: 12px;
+    }
+</style>
+@endsection
+
 @section('content')
 
-<div class="container mt-4">
+<div class="container mt-3">
 
-    <div class="d-flex justify-content-between mb-4">
+    {{-- JUDUL DAN TOMBOL KEMBALI --}}
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
 
         <div>
-            <h3>Tambah Penerimaan Barang</h3>
-            <p class="text-muted">
+            <h3 class="judul mb-2">
+                Tambah Penerimaan Barang
+            </h3>
+
+            <p class="text-muted mb-0">
                 Catat jumlah barang yang benar-benar diterima.
             </p>
         </div>
 
         <a href="{{ route('penerimaan.index') }}"
-           class="btn btn-secondary">
-            Kembali
+           class="btn btn-dashboard btn-sm px-3 py-2">
+
+            ← Kembali
+
         </a>
 
     </div>
+
+
+    {{-- NOTIFIKASI ERROR --}}
 
     @if($errors->any())
         <div class="alert alert-danger">
@@ -34,11 +81,16 @@
         </div>
     @endif
 
+
+    {{-- FORM PENERIMAAN --}}
+
     <form action="{{ route('penerimaan.store') }}" method="POST">
 
         @csrf
 
-        <div class="card mb-4">
+        {{-- INFORMASI PENGADAAN --}}
+
+        <div class="card shadow-sm mb-4">
 
             <div class="card-header">
                 Informasi Pengadaan
@@ -46,7 +98,7 @@
 
             <div class="card-body">
 
-                <label class="form-label">
+                <label class="form-label fw-bold">
                     Pilih Pengadaan
                 </label>
 
@@ -61,21 +113,30 @@
 
                     @foreach($pengadaan as $p)
 
-                        <option value="{{ $p->idpengadaan }}">
+                        <option value="{{ $p->idpengadaan }}"
+                            {{ old('idpengadaan') == $p->idpengadaan ? 'selected' : '' }}>
+
                             Pengadaan #{{ $p->idpengadaan }}
                             - {{ $p->nama_vendor }}
+
                         </option>
 
                     @endforeach
 
                 </select>
 
+                <small class="text-muted">
+                    Pilih transaksi pengadaan yang akan diterima barangnya.
+                </small>
+
             </div>
 
         </div>
 
 
-        <div class="card mb-4">
+        {{-- DETAIL BARANG --}}
+
+        <div class="card shadow-sm mb-4">
 
             <div class="card-header">
                 Detail Barang yang Diterima
@@ -85,7 +146,7 @@
 
                 <div id="areaBarang">
 
-                    <p class="text-muted">
+                    <p class="text-muted mb-0">
                         Silakan pilih pengadaan terlebih dahulu.
                     </p>
 
@@ -96,11 +157,15 @@
         </div>
 
 
-        <div class="d-flex justify-content-end">
+        {{-- TOMBOL SIMPAN --}}
+
+        <div class="d-flex justify-content-end mb-4">
 
             <button type="submit"
-                    class="btn btn-success">
+                    class="btn btn-success px-4">
+
                 Simpan Penerimaan
+
             </button>
 
         </div>
@@ -109,6 +174,8 @@
 
 </div>
 
+
+{{-- JAVASCRIPT --}}
 
 <script>
 
@@ -120,8 +187,10 @@ document.getElementById('idpengadaan')
     const area = document.getElementById('areaBarang');
 
     if (!id) {
+
         area.innerHTML =
             '<p class="text-muted">Pilih pengadaan terlebih dahulu.</p>';
+
         return;
     }
 
@@ -143,26 +212,31 @@ document.getElementById('idpengadaan')
         .then(data => {
 
             if (data.length === 0) {
+
                 area.innerHTML =
                     '<div class="alert alert-warning">Detail pengadaan tidak ditemukan.</div>';
+
                 return;
             }
 
             let html = `
                 <div class="table-responsive">
-                <table class="table table-bordered align-middle">
 
-                    <thead class="table-light">
-                        <tr>
-                            <th>Nama Barang</th>
-                            <th>Jumlah Pesanan</th>
-                            <th>Sudah Diterima</th>
-                            <th>Sisa Pesanan</th>
-                            <th>Jumlah Diterima Sekarang</th>
-                        </tr>
-                    </thead>
+                    <table class="table table-bordered table-hover align-middle">
 
-                    <tbody>
+                        <thead class="table-dark">
+
+                            <tr>
+                                <th>Nama Barang</th>
+                                <th>Jumlah Pesanan</th>
+                                <th>Sudah Diterima</th>
+                                <th>Sisa Pesanan</th>
+                                <th>Jumlah Diterima Sekarang</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
             `;
 
             data.forEach(item => {
@@ -176,18 +250,26 @@ document.getElementById('idpengadaan')
 
                         <td>
                             ${item.nama}
+
                             <input type="hidden"
                                    name="idbarang[]"
                                    value="${item.idbarang}">
                         </td>
 
-                        <td>${item.jumlah} ${item.nama_satuan}</td>
-
-                        <td>${item.sudah_diterima}</td>
-
-                        <td>${sisa}</td>
+                        <td>
+                            ${item.jumlah} ${item.nama_satuan}
+                        </td>
 
                         <td>
+                            ${item.sudah_diterima}
+                        </td>
+
+                        <td>
+                            <strong>${sisa}</strong>
+                        </td>
+
+                        <td>
+
                             <input type="number"
                                    name="jumlah_terima[]"
                                    class="form-control"
@@ -195,6 +277,7 @@ document.getElementById('idpengadaan')
                                    max="${sisa}"
                                    value="0"
                                    required>
+
                         </td>
 
                     </tr>
@@ -203,8 +286,10 @@ document.getElementById('idpengadaan')
             });
 
             html += `
-                    </tbody>
-                </table>
+                        </tbody>
+
+                    </table>
+
                 </div>
             `;
 

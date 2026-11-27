@@ -39,7 +39,6 @@ class PenerimaanController extends Controller
     // ==========================================
     public function create()
     {
-        // Mengambil pengadaan yang sudah memiliki detail barang
         $pengadaan = DB::select("
             SELECT
                 pg.idpengadaan,
@@ -72,6 +71,7 @@ class PenerimaanController extends Controller
                 s.nama_satuan,
                 dp.harga_satuan,
                 dp.jumlah,
+
                 COALESCE((
                     SELECT SUM(dpt.jumlah_terima)
                     FROM detail_penerimaan dpt
@@ -80,12 +80,15 @@ class PenerimaanController extends Controller
                     WHERE pt.idpengadaan = dp.idpengadaan
                       AND dpt.barang_idbarang = dp.idbarang
                 ), 0) AS sudah_diterima
+
             FROM detail_pengadaan dp
             JOIN barang b
                 ON dp.idbarang = b.idbarang
             JOIN satuan s
                 ON b.idsatuan = s.idsatuan
+
             WHERE dp.idpengadaan = ?
+
             ORDER BY b.nama ASC
         ", [$id]);
 
@@ -109,6 +112,7 @@ class PenerimaanController extends Controller
         try {
 
             DB::beginTransaction();
+
 
             // ----------------------------------
             // A. CEK USER LOGIN
@@ -142,11 +146,10 @@ class PenerimaanController extends Controller
 
 
             // ----------------------------------
-            // C. VALIDASI BARANG DAN JUMLAH
+            // C. GABUNGKAN BARANG YANG SAMA
             // ----------------------------------
 
-            $daftarDetail = [];
-            $jumlahTotal = 0;
+            $inputBarang = [];
 
             foreach ($request->idbarang as $index => $idbarang) {
 
@@ -158,13 +161,30 @@ class PenerimaanController extends Controller
                     );
                 }
 
-                // Mengambil jumlah barang yang dipesan
+                if (!isset($inputBarang[$idbarang])) {
+                    $inputBarang[$idbarang] = 0;
+                }
+
+                $inputBarang[$idbarang] += $jumlahTerima;
+            }
+
+
+            // ----------------------------------
+            // D. VALIDASI BARANG DAN JUMLAH
+            // ----------------------------------
+
+            $daftarDetail = [];
+
+            foreach ($inputBarang as $idbarang => $jumlahTerima) {
+
+                // Mengambil data barang dan jumlah pesanan
                 $data = DB::selectOne("
                     SELECT
                         dp.idbarang,
                         dp.harga_satuan,
                         dp.jumlah,
                         b.nama,
+
                         COALESCE((
                             SELECT SUM(dpt.jumlah_terima)
                             FROM detail_penerimaan dpt
@@ -173,11 +193,15 @@ class PenerimaanController extends Controller
                             WHERE pt.idpengadaan = dp.idpengadaan
                               AND dpt.barang_idbarang = dp.idbarang
                         ), 0) AS sudah_diterima
+
                     FROM detail_pengadaan dp
                     JOIN barang b
                         ON dp.idbarang = b.idbarang
+
                     WHERE dp.idpengadaan = ?
                       AND dp.idbarang = ?
+
+                    FOR UPDATE
                 ", [
                     $request->idpengadaan,
                     $idbarang
@@ -189,6 +213,7 @@ class PenerimaanController extends Controller
                     );
                 }
 
+                // Menghitung sisa pesanan
                 $sisa = (int) $data->jumlah -
                         (int) $data->sudah_diterima;
 
@@ -210,8 +235,6 @@ class PenerimaanController extends Controller
                         'harga' => $data->harga_satuan,
                         'subtotal' => $subtotal
                     ];
-
-                    $jumlahTotal += $jumlahTerima;
                 }
             }
 
@@ -223,7 +246,7 @@ class PenerimaanController extends Controller
 
 
             // ----------------------------------
-            // D. MEMBUAT ID PENERIMAAN
+            // E. MEMBUAT ID PENERIMAAN
             // ----------------------------------
 
             $dataId = DB::selectOne("
@@ -235,8 +258,11 @@ class PenerimaanController extends Controller
 
 
             // ----------------------------------
-            // E. MENYIMPAN DATA PENERIMAAN
+            // F. MENYIMPAN DATA PENERIMAAN
             // ----------------------------------
+
+            // Status awal adalah PROSES (P).
+            // Status akan diperiksa kembali setelah detail disimpan.
 
             DB::insert("
                 INSERT INTO penerimaan
@@ -247,7 +273,7 @@ class PenerimaanController extends Controller
                     created_at,
                     status
                 )
-                VALUES (?, ?, ?, NOW(), 'S')
+                VALUES (?, ?, ?, NOW(), 'P')
             ", [
                 $idpenerimaan,
                 $request->idpengadaan,
@@ -256,7 +282,7 @@ class PenerimaanController extends Controller
 
 
             // ----------------------------------
-            // F. MENYIMPAN DETAIL PENERIMAAN
+            // G. MENYIMPAN DETAIL PENERIMAAN
             // ----------------------------------
 
             $dataDetailId = DB::selectOne("
@@ -288,23 +314,98 @@ class PenerimaanController extends Controller
                     $detail['subtotal']
                 ]);
 
-                // Trigger akan berjalan otomatis di sini.
+                // Trigger penambahan stok berjalan otomatis.
                 $idDetail++;
             }
 
 
             // ----------------------------------
-            // G. COMMIT TRANSAKSI
+            // H. MEMERIKSA STATUS PENERIMAAN
+            // ----------------------------------
+
+            // Menghitung apakah masih ada barang
+            // yang belum diterima sesuai pesanan.
+
+            $cekSisa = DB::selectOne("
+                SELECT COUNT(*) AS jumlah_belum_lengkap
+
+                FROM detail_pengadaan dp
+
+                WHERE dp.idpengadaan = ?
+
+                AND COALESCE((
+                    SELECT SUM(dpt.jumlah_terima)
+
+                    FROM detail_penerimaan dpt
+
+                    JOIN penerimaan pt
+                        ON dpt.idpenerimaan = pt.idpenerimaan
+
+                    WHERE pt.idpengadaan = dp.idpengadaan
+                      AND dpt.barang_idbarang = dp.idbarang
+
+                ), 0) < dp.jumlah
+
+            ", [$request->idpengadaan]);
+
+
+            // Jika masih ada barang yang belum lengkap,
+            // status = PROSES (P).
+            //
+            // Jika semua barang sudah diterima,
+            // status = SELESAI (S).
+
+            if ($cekSisa->jumlah_belum_lengkap > 0) {
+
+                $status = 'P';
+
+            } else {
+
+                $status = 'S';
+
+            }
+
+
+            // ----------------------------------
+            // I. MEMPERBARUI STATUS PENERIMAAN
+            // ----------------------------------
+
+            // Semua penerimaan dari pengadaan yang sama
+            // mendapatkan status sesuai progres terakhir.
+
+            DB::update("
+                UPDATE penerimaan
+
+                SET status = ?
+
+                WHERE idpengadaan = ?
+
+            ", [
+                $status,
+                $request->idpengadaan
+            ]);
+
+
+            // ----------------------------------
+            // J. COMMIT TRANSAKSI
             // ----------------------------------
 
             DB::commit();
 
+            if ($status == 'P') {
+
+                $pesan = 'Penerimaan berhasil disimpan! Status masih PROSES karena masih ada barang yang belum diterima.';
+
+            } else {
+
+                $pesan = 'Penerimaan berhasil disimpan! Seluruh barang sudah diterima. Status SELESAI.';
+
+            }
+
             return redirect()
                 ->route('penerimaan.index')
-                ->with(
-                    'success',
-                    'Penerimaan barang berhasil disimpan!'
-                );
+                ->with('success', $pesan);
+
 
         } catch (\Throwable $e) {
 
@@ -317,5 +418,16 @@ class PenerimaanController extends Controller
                     'Penerimaan gagal: ' . $e->getMessage()
                 );
         }
+    }
+
+
+    // ==========================================
+    // 5. MENAMPILKAN DETAIL PENERIMAAN DARI SP
+    // ==========================================
+    public function detailSP()
+    {
+        $data = DB::select("CALL sp_detail_penerimaan()");
+
+        return view('penerimaan.detail-sp', compact('data'));
     }
 }

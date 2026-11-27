@@ -2,26 +2,48 @@
 
 @section('content')
 
+@php
+    $role = session('nama_role');
+
+    $dashboard = [
+        'Administrator' => '/dashboard/administrator',
+        'Gudang' => '/dashboard/gudang',
+        'Manager' => '/dashboard/manager',
+        'Kasir' => '/dashboard/kasir',
+        'Staff Pembelian' => '/dashboard/pembelian',
+    ];
+
+    $dashboardUrl = $dashboard[$role] ?? '/';
+@endphp
+
 <div class="container mt-4">
 
-    <div class="d-flex justify-content-between mb-4">
+    {{-- JUDUL DAN TOMBOL KEMBALI --}}
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
 
         <div>
-            <h3 style="color:#3e2723;">Stok Barang</h3>
+            <h3 style="color:#3e2723;">
+                Stok Barang
+            </h3>
 
-            <p class="text-muted">
+            <p class="text-muted mb-0">
                 Informasi jumlah stok terakhir setiap barang.
             </p>
         </div>
 
-        <a href="{{ route('kartu_stok.index') }}"
+        <a href="{{ url($dashboardUrl) }}"
            class="btn btn-secondary"
            style="height:40px;">
-            Kembali
+
+            ← Kembali ke Dashboard
+
         </a>
 
     </div>
 
+
+    {{-- TABEL DAFTAR STOK BARANG --}}
 
     <div class="card">
 
@@ -33,7 +55,7 @@
 
             <div class="table-responsive">
 
-                <table class="table table-bordered table-striped">
+                <table class="table table-bordered table-striped align-middle">
 
                     <thead class="table-light">
 
@@ -52,55 +74,59 @@
 
                         @forelse($stokBarang as $index => $b)
 
-                        <tr>
+                            <tr>
 
-                            <td>{{ $index + 1 }}</td>
+                                <td>
+                                    {{ $index + 1 }}
+                                </td>
 
-                            <td>{{ $b->idbarang }}</td>
+                                <td>
+                                    {{ $b->idbarang }}
+                                </td>
 
-                            <td>{{ $b->nama }}</td>
+                                <td>
+                                    {{ $b->nama }}
+                                </td>
 
-                            <td>{{ $b->nama_satuan }}</td>
+                                <td>
+                                    {{ $b->nama_satuan }}
+                                </td>
 
-                            <td>
-                                <strong>
-                                    {{ number_format($b->stok_terakhir) }}
-                                </strong>
-                            </td>
+                                <td>
+                                    <strong>
+                                        {{ number_format($b->stok_terakhir) }}
+                                    </strong>
+                                </td>
 
-                            <td>
+                                {{-- STATUS STOK --}}
 
-                                @if($b->stok_terakhir <= 0)
+                                <td>
 
-                                    <span class="badge bg-danger">
-                                        Stok Habis
-                                    </span>
+                                    @if($b->stok_terakhir > 0)
 
-                                @elseif($b->stok_terakhir <= 5)
+                                        <span class="badge bg-success">
+                                            Stok Tersedia
+                                        </span>
 
-                                    <span class="badge bg-warning text-dark">
-                                        Stok Menipis
-                                    </span>
+                                    @else
 
-                                @else
+                                        <span class="badge bg-danger">
+                                            Stok Habis
+                                        </span>
 
-                                    <span class="badge bg-success">
-                                        Stok Aman
-                                    </span>
+                                    @endif
 
-                                @endif
+                                </td>
 
-                            </td>
-
-                        </tr>
+                            </tr>
 
                         @empty
 
-                        <tr>
-                            <td colspan="6" class="text-center">
-                                Belum ada barang.
-                            </td>
-                        </tr>
+                            <tr>
+                                <td colspan="6" class="text-center">
+                                    Belum ada barang.
+                                </td>
+                            </tr>
 
                         @endforelse
 
